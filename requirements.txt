@@ -1,2 +1,5 @@
-flask
+Flask
+Flask-Bootstrap
+Flask-Moment
+Flask-WTF
 redis
