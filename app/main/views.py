@@ -1,7 +1,5 @@
-from flask import render_template, session, redirect, url_for, current_app
-from requests import request
-# from .. import db
-from .. import redis_db
+from flask import render_template, session, redirect, url_for, current_app, flash
+from .. import mongo
 # from ..models import User
 from . import main
 from .forms import NameForm, RegistrationForm
@@ -11,8 +9,8 @@ from .forms import NameForm, RegistrationForm
 def index():
     form = RegistrationForm()
 
-    if request.method == 'POST' and form.validate_on_submit():
-        pass
+    if form.validate_on_submit():
+        flash(form.username.data)
     #     user = User(form.username.data, form.email.data,
     #                 form.password.data)
     #     db_session.add(user)
@@ -23,8 +21,6 @@ def index():
                            known=session.get('known', False))
 
 # def index():
-#     # count = redis_db.incr('hits')
-#     # return 'Hello from Docker! I have been seen {} times!!!!\n'.format(count)
 #
 #     form = NameForm()
 #
