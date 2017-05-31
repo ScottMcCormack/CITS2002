@@ -1,5 +1,5 @@
 Flask
 Flask-Bootstrap
 Flask-Moment
-Flask-PyMongo
+Flask-MongoEngine
 Flask-WTF
