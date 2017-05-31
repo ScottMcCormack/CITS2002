@@ -1,18 +1,23 @@
 from flask import render_template, session, redirect, url_for, current_app, flash
-from .. import mongo
-# from ..models import User
+from .. import db
+from ..models import User
 from . import main
-from .forms import NameForm, RegistrationForm
+from .forms import LoginForm
 
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    form = RegistrationForm()
+    form = LoginForm()
 
     if form.validate_on_submit():
-        flash(form.username.data)
-    #     user = User(form.username.data, form.email.data,
-    #                 form.password.data)
+        user = db.users.find_one({'username': form.username.data})
+
+        # Check to see if user already exists in the database
+        if user is None:
+            flash('User doesn\'t exist!')
+        else:
+            flash('User exists in database')
+
     #     db_session.add(user)
     #     flash('Thanks for registering')
     #     return redirect(url_for('login'))
