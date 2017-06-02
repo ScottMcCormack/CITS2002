@@ -87,13 +87,13 @@ class Miner(object):
     def __init__(self):
         self.blockchain = mongo.db.blockchain
 
-    def initialise_new_user(self, user, chriscoins=100):
+    def initialise_new_user(self, user, timestamp, chriscoins=100):
         # Initialise the user on the blockchain and give the user an amount of chriscoins
         self.blockchain.insert_one({
             'from_user_pk': '<miner>',
             'to_user_pk': user.public_key,
             'cc_amount': chriscoins,
-            'timestamp': datetime.datetime.now(),
+            'timestamp': timestamp,
             'nonce': '-',
             'miner_verify': True
         })

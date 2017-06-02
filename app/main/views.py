@@ -1,4 +1,5 @@
 from flask import render_template, session, redirect, url_for, current_app, flash
+from babel.dates import get_timezone
 from datetime import datetime
 from .. import mongo
 from ..models import User, Miner
@@ -17,7 +18,7 @@ def index():
         user = User(username=username, password=password)
 
         # Attempt to login
-        response, success = user.login_user()
+        login_success, response = user.login_user()
         flash(response)
         return render_template('index.html',
                                form=form, name=session.get('name'),
@@ -46,7 +47,7 @@ def register():
         # If registration was successful, initialise the user and give them some coins
         if registration_success:
             miner = Miner()
-            miner.initialise_new_user(user)
+            miner.initialise_new_user(user, datetime.now())
 
         flash(response)
 
@@ -61,9 +62,11 @@ def blockchain_log():
     table_list = []
 
     for transaction in blockchain_transactions:
+        to_user = mongo.db.users.find_one({'public_key': transaction['to_user_pk']})
+
         table_list.append({
-            'from_user': 'Alice',
-            'to_user': 'Bob',
+            'from_user': '<miner>',
+            'to_user': to_user['username'],
             'amount': transaction['cc_amount'],
             'timestamp': transaction['timestamp'],
             'nonce': transaction['nonce'],
