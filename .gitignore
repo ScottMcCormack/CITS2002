@@ -103,6 +103,7 @@ ENV/
 .idea/
 codestyles/
 inspection/
+colors/
 code.style.schemes.xml
 colors.scheme.xml
 databaseSettings.xml
@@ -112,7 +113,8 @@ ide.general.xml
 ignore.xml
 plugin_ui.xml
 ui.lnf.xml
+vcs.xml
+ui.lnf.xml
+plugin_ui.xml
 _linux/
-/vcs.xml
-/ui.lnf.xml
-/plugin_ui.xml
+
