@@ -101,6 +101,8 @@ ENV/
 .mypy_cache/
 
 .idea/
+codestyles/
+inspection/
 code.style.schemes.xml
 colors.scheme.xml
 databaseSettings.xml
