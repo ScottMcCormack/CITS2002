@@ -1,5 +1,7 @@
+Babel
 Flask
 Flask-Bootstrap
 Flask-Moment
 Flask-MongoEngine
+Flask-Table
 Flask-WTF
