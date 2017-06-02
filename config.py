@@ -1,8 +1,3 @@
-import os
-
-basedir = os.path.abspath(os.path.dirname(__file__))
-
-
 class Config:
     MONGO_HOST = 'chriscoin_database'
     MONGO_PORT = 27017

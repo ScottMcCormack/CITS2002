@@ -1,5 +1,4 @@
 from flask import render_template, session, redirect, url_for, current_app, flash
-from babel.dates import get_timezone
 from datetime import datetime
 from .. import mongo
 from ..models import User, Miner
@@ -20,9 +19,15 @@ def index():
         # Attempt to login
         login_success, response = user.login_user()
         flash(response)
-        return render_template('index.html',
-                               form=form, name=session.get('name'),
-                               known=session.get('known', False))
+
+        # If successfully logged in set session to true
+        if login_success:
+            session['known'] = True
+            session['name'] = username
+
+            return render_template('index.html', form=False,
+                                   name=session.get('name'),
+                                   known=session.get('known', False))
 
     return render_template('index.html',
                            form=form, name=session.get('name'),
@@ -78,20 +83,9 @@ def blockchain_log():
     return render_template('blockchain-log.html',
                            table=table)
 
-# def index():
-#
-#     form = NameForm()
-#
-#     # if form.validate_on_submit():
-#     #     user = User.query.filter_by(username=form.name.data).first()
-#     #     if user is None:
-#     #         user = User(username=form.name.data)
-#     #         db.session.add(user)
-#     #         session['known'] = False
-#     #     else:
-#     #         session['known'] = True
-#     #     session['name'] = form.name.data
-#     #     return redirect(url_for('.index'))
-#     return render_template('index.html',
-#                            form=form, name=session.get('name'),
-#                            known=session.get('known', False))
+
+@main.route('/logout', methods=['GET'])
+def logout():
+    session['known'] = False
+    session['name'] = False
+    return redirect(url_for('.index'))

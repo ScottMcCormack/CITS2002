@@ -29,18 +29,19 @@ class User(object):
             # Generate private and public keys
             private_key, public_key = self.create_RSA_keys()
 
-            user_id = self.users.insert_one({
+            user_obj_id = self.users.insert_one({
                 'username': self.username,
                 'password': self.password,
                 'created': datetime.datetime.utcnow(),
                 'private_key': private_key,
                 'public_key': public_key
-            })
+            }).inserted_id
 
+            self.user_obj_id = user_obj_id
             self.public_key = public_key
 
             # If a user_id was successfully returned, user has been created
-            if user_id is not None:
+            if user_obj_id is not None:
                 response = 'User was successfully created!'
                 registration_success = True
             else:
@@ -78,7 +79,7 @@ class User(object):
             else:
                 response = 'Incorrect password!'
         else:
-            response = 'User does not exist, please register'
+            response = 'User: \'{0}\' does not exist! Please register'.format(self.username)
 
         return (login_success, response)
 

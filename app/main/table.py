@@ -1,5 +1,4 @@
 from flask_table import Table, Col, DatetimeCol, BoolCol
-from babel.dates import format_datetime, get_timezone
 
 
 class BlockchainTable(Table):
