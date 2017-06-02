@@ -99,3 +99,13 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+.idea/
+code.style.schemes.xml
+colors.scheme.xml
+databaseSettings.xml
+debugger.xml
+editor.xml
+ide.general.xml
+ignore.xml
+_linux/
