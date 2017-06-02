@@ -113,3 +113,6 @@ ignore.xml
 plugin_ui.xml
 ui.lnf.xml
 _linux/
+/vcs.xml
+/ui.lnf.xml
+/plugin_ui.xml
