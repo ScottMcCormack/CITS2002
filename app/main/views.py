@@ -1,7 +1,7 @@
 from flask import render_template, session, redirect, url_for, current_app, flash
 from datetime import datetime
 from .. import mongo
-from ..models import User
+from ..models import User, Miner
 from . import main
 from .forms import LoginForm, RegistrationForm
 from .table import BlockchainTable
@@ -17,44 +17,15 @@ def index():
         user = User(username=username, password=password)
 
         # Attempt to login
-        response = user.login_user()
+        response, success = user.login_user()
         flash(response)
-
-
-        # # Check to see if user already exists in the database
-        # if user is None:
-        #     flash('User doesn\'t exist!')
-        # else:
-        #     flash(user.password)
-
         return render_template('index.html',
                                form=form, name=session.get('name'),
                                known=session.get('known', False))
 
-    # db_session.add(user)
-    #     flash('Thanks for registering')
-    #     return redirect(url_for('login'))
     return render_template('index.html',
                            form=form, name=session.get('name'),
                            known=session.get('known', False))
-
-
-@main.route('/blockchain-log', methods=['GET', 'POST'])
-def blockchain_log():
-    # Insert some test table entries
-    items = [
-        dict(from_user='Alice', to_user='Bob', amount='50', timestamp=datetime.now(),
-             nonce='1028', miner_verify=True),
-        dict(from_user='Alice', to_user='Bob', amount='50', timestamp=datetime.now(),
-             nonce='1028', miner_verify=True),
-        dict(from_user='Alice', to_user='Bob', amount='50', timestamp=datetime.now(),
-             nonce='1028', miner_verify=True),
-    ]
-
-    table = BlockchainTable(items)
-
-    return render_template('blockchain-log.html',
-                           table=table)
 
 
 @main.route('/register', methods=['GET', 'POST'])
@@ -64,17 +35,45 @@ def register():
 
     # Validate the form
     if form.validate_on_submit():
-        # Determine to see if a user exists
+        # Get data from forms and initialise a 'user' object
         username = form.username.data
         password = form.password.data
         user = User(username=username, password=password)
 
         # Attempt to register a new user
-        response = user.register_new_user()
+        registration_success, response = user.register_new_user()
+
+        # If registration was successful, initialise the user and give them some coins
+        if registration_success:
+            miner = Miner()
+            miner.initialise_new_user(user)
+
         flash(response)
 
     return render_template('register.html',
                            form=form)
+
+
+@main.route('/blockchain-log', methods=['GET', 'POST'])
+def blockchain_log():
+    # Insert some test table entries
+    blockchain_transactions = mongo.db.blockchain.find()
+    table_list = []
+
+    for transaction in blockchain_transactions:
+        table_list.append({
+            'from_user': 'Alice',
+            'to_user': 'Bob',
+            'amount': transaction['cc_amount'],
+            'timestamp': transaction['timestamp'],
+            'nonce': transaction['nonce'],
+            'miner_verify': transaction['miner_verify']
+        })
+
+    table = BlockchainTable(table_list)
+
+    return render_template('blockchain-log.html',
+                           table=table)
 
 # def index():
 #

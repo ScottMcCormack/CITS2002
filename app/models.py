@@ -10,6 +10,7 @@ class User(object):
         # Values to capture for a user, hash the password when received
         self.username = username
         self.password = self.hash_password(password)
+        self.users = mongo.db.users
 
     def hash_password(self, password):
         # Hash the password and store it as a hexdigest
@@ -19,16 +20,16 @@ class User(object):
     def register_new_user(self):
         # Attempt to register a new user
         # Return a response, depending on whether it was successful
-        users = mongo.db.users
 
         # Look for a user in the database
-        user = users.find_one({'username': self.username})
+        user = self.users.find_one({'username': self.username})
+        registration_success = False # Init as False before creation
 
         if user is None:
             # Generate private and public keys
             private_key, public_key = self.create_RSA_keys()
 
-            user_id = users.insert_one({
+            user_id = self.users.insert_one({
                 'username': self.username,
                 'password': self.password,
                 'created': datetime.datetime.utcnow(),
@@ -36,16 +37,18 @@ class User(object):
                 'public_key': public_key
             })
 
+            self.public_key = public_key
+
             # If a user_id was successfully returned, user has been created
             if user_id is not None:
                 response = 'User was successfully created!'
-
+                registration_success = True
             else:
                 response = 'Error: User could not be created!'
         else:
             response = 'User already exists!'
 
-        return response
+        return registration_success, response
 
     def create_RSA_keys(self):
         # Method to create private and public keys for users
@@ -62,18 +65,35 @@ class User(object):
     def login_user(self):
         # Attempt to login
         users = mongo.db.users
+        login_success = False  # Init as False until login confirmed
 
         # Look for the user in the database
         # Look for a user in the database
         user = users.find_one({'username': self.username})
         if user is not None:
             # Check the hashed password to see if it matches the entry in the database
-            if user.password == self.password:
+            if user['password'] == self.password:
                 response = 'Successfully logged in!'
+                login_success = True
             else:
                 response = 'Incorrect password!'
         else:
             response = 'User does not exist, please register'
 
-        return response
+        return (login_success, response)
 
+
+class Miner(object):
+    def __init__(self):
+        self.blockchain = mongo.db.blockchain
+
+    def initialise_new_user(self, user, chriscoins=100):
+        # Initialise the user on the blockchain and give the user an amount of chriscoins
+        self.blockchain.insert_one({
+            'from_user_pk': '<miner>',
+            'to_user_pk': user.public_key,
+            'cc_amount': chriscoins,
+            'timestamp': datetime.datetime.now(),
+            'nonce': '-',
+            'miner_verify': True
+        })
