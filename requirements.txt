@@ -2,6 +2,7 @@ Babel
 Flask
 Flask-Bootstrap
 Flask-Moment
-Flask-MongoEngine
+Flask-PyMongo
 Flask-Table
 Flask-WTF
+pycrypto

@@ -5,7 +5,7 @@ from wtforms.validators import DataRequired, EqualTo
 
 class LoginForm(FlaskForm):
     # Fields for logging into the website
-    username = StringField('Username', [validators.Length(min=4, max=25), DataRequired()])
+    username = StringField('Username', [validators.Length(min=3, max=25), DataRequired()])
     password = PasswordField('Password', [DataRequired()])
     submit = SubmitField('Submit')
 
@@ -13,7 +13,6 @@ class LoginForm(FlaskForm):
 class RegistrationForm(FlaskForm):
     # Form for registering a user
     username = StringField('Username', [validators.Length(min=4, max=25)])
-    email = StringField('Email Address', [validators.Length(min=6, max=35)])
     password = PasswordField('New Password', [
         validators.DataRequired(),
         validators.EqualTo('confirm', message='Passwords must match')

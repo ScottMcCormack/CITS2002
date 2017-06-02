@@ -1,9 +1,9 @@
 from flask import render_template, session, redirect, url_for, current_app, flash
 from datetime import datetime
-from .. import db
+from .. import mongo
 from ..models import User
 from . import main
-from .forms import LoginForm
+from .forms import LoginForm, RegistrationForm
 from .table import BlockchainTable
 
 
@@ -12,20 +12,32 @@ def index():
     form = LoginForm()
 
     if form.validate_on_submit():
-        user = db.users.find_one({'username': form.username.data})
+        username = form.username.data
+        password = form.password.data
+        user = User(username=username, password=password)
 
-        # Check to see if user already exists in the database
-        if user is None:
-            flash('User doesn\'t exist!')
-        else:
-            flash('User exists in database')
+        # Attempt to login
+        response = user.login_user()
+        flash(response)
 
-    #     db_session.add(user)
+
+        # # Check to see if user already exists in the database
+        # if user is None:
+        #     flash('User doesn\'t exist!')
+        # else:
+        #     flash(user.password)
+
+        return render_template('index.html',
+                               form=form, name=session.get('name'),
+                               known=session.get('known', False))
+
+    # db_session.add(user)
     #     flash('Thanks for registering')
     #     return redirect(url_for('login'))
     return render_template('index.html',
                            form=form, name=session.get('name'),
                            known=session.get('known', False))
+
 
 @main.route('/blockchain-log', methods=['GET', 'POST'])
 def blockchain_log():
@@ -43,6 +55,26 @@ def blockchain_log():
 
     return render_template('blockchain-log.html',
                            table=table)
+
+
+@main.route('/register', methods=['GET', 'POST'])
+def register():
+    # Allows a new user to register
+    form = RegistrationForm()
+
+    # Validate the form
+    if form.validate_on_submit():
+        # Determine to see if a user exists
+        username = form.username.data
+        password = form.password.data
+        user = User(username=username, password=password)
+
+        # Attempt to register a new user
+        response = user.register_new_user()
+        flash(response)
+
+    return render_template('register.html',
+                           form=form)
 
 # def index():
 #
