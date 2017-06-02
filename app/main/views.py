@@ -1,8 +1,10 @@
 from flask import render_template, session, redirect, url_for, current_app, flash
+from datetime import datetime
 from .. import db
 from ..models import User
 from . import main
 from .forms import LoginForm
+from .table import BlockchainTable
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -24,6 +26,23 @@ def index():
     return render_template('index.html',
                            form=form, name=session.get('name'),
                            known=session.get('known', False))
+
+@main.route('/blockchain-log', methods=['GET', 'POST'])
+def blockchain_log():
+    # Insert some test table entries
+    items = [
+        dict(from_user='Alice', to_user='Bob', amount='50', timestamp=datetime.now(),
+             nonce='1028', miner_verify=True),
+        dict(from_user='Alice', to_user='Bob', amount='50', timestamp=datetime.now(),
+             nonce='1028', miner_verify=True),
+        dict(from_user='Alice', to_user='Bob', amount='50', timestamp=datetime.now(),
+             nonce='1028', miner_verify=True),
+    ]
+
+    table = BlockchainTable(items)
+
+    return render_template('blockchain-log.html',
+                           table=table)
 
 # def index():
 #
