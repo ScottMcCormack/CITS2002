@@ -1,2 +1,2 @@
-# CITS2002
-CITS2002 Project Repository
+# CITS3002
+CITS3002 Project Repository
