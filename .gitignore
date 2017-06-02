@@ -110,4 +110,6 @@ debugger.xml
 editor.xml
 ide.general.xml
 ignore.xml
+plugin_ui.xml
+ui.lnf.xml
 _linux/
