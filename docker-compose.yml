@@ -1,12 +1,14 @@
 version: '2'
 services:
   web:
+    container_name: chriscoin_user
     build: .
     ports:
      - "5000:5000"
     volumes:
      - .:/code
   mongodb:
-    image: 'bitnami/mongodb:latest'
+    container_name: chriscoin_database
+    image: 'mongo'
     ports:
       - "27017:27017"
