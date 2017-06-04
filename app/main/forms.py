@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, validators, PasswordField, BooleanField
+from wtforms import StringField, SubmitField, validators, PasswordField, SelectField, IntegerField
 from wtforms.validators import DataRequired, EqualTo
 
 
@@ -19,3 +19,11 @@ class RegistrationForm(FlaskForm):
     ])
     confirm = PasswordField('Repeat Password')
     submit = SubmitField('Submit')
+
+
+class TransactionForm(FlaskForm):
+    # Form for submitting a transaction
+    to_user = SelectField('Send to')
+    amount = IntegerField('Chriscoin Amount')
+    submit = SubmitField('Submit')
+
