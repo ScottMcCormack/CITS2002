@@ -1,4 +1,4 @@
-from flask import render_template, session, redirect, url_for, current_app, flash
+from flask import render_template, session, redirect, url_for, current_app, flash, jsonify
 from .. import mongo
 from ..models import User, Miner
 from . import main
@@ -73,51 +73,20 @@ def logout():
 
 @main.route('/blockchain-log', methods=['GET'])
 def blockchain_log():
-    # Get all the blockchain transactions from the database 'blockchain'
-    blockchain_transactions = mongo.db.blockchain.find()
     # Parse transactions and load them into 'table_list'
-    table_list = []
-
-    for transaction in blockchain_transactions:
-        to_user_pk = transaction['to_user_pk']
-        from_user_pk = transaction['from_user_pk']
-
-        # Helper function to encode as 'UTF-8' if not:
-        if isinstance(to_user_pk, str):
-            to_user_pk = to_user_pk.encode('UTF-8')
-        if isinstance(from_user_pk, str):
-            from_user_pk = from_user_pk.encode('UTF-8')
-
-        # Cross-reference user database to get actual username
-        to_user = mongo.db.users.find_one(
-            {'public_key': to_user_pk}
-        )
-        to_user_username = to_user['username']
-
-        # If from 'miner' set from username as simply 'miner'
-        if from_user_pk == b'<miner>':
-            from_user_username = '<miner>'
-        else:
-            from_user = mongo.db.users.find_one(
-                {'public_key': from_user_pk}
-            )
-            from_user_username = from_user['username']
-
-        if to_user is not None:
-            table_list.append({
-                'from_user': from_user_username,
-                'to_user': to_user_username,
-                'amount': transaction['cc_amount'],
-                'timestamp': transaction['timestamp'],
-                'nonce': transaction['nonce'],
-                'miner_verify': transaction['miner_verify']
-            })
+    table_list = User.get_formatted_blockchain_log()
 
     table = BlockchainTable(table_list)
 
     return render_template('blockchain-log.html',
                            table=table,
                            known=session.get('known', False))
+
+@main.route('/blockchain-log-raw', methods=['GET'])
+def blockchain_log_raw():
+    raw_blockchain_json = User.get_raw_blockchain_log()
+
+    return jsonify(raw_blockchain_json)
 
 
 @main.route('/transactions', methods=['GET', 'POST'])

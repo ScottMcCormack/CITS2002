@@ -5,6 +5,7 @@
 
 {% block page_content %}
     <p>The following log contains a list of all the blockchain transactions</p>
+    <p>View this table as the <a href="{{ url_for('main.blockchain_log_raw')}}">raw blockchain log</a></p>
     <div class="container">
         {{ table }}
     </div>

@@ -1,10 +1,10 @@
 from . import mongo
+import datetime
 import hashlib
 import json
-import datetime
 from Crypto.PublicKey import RSA
 from Crypto import Random
-
+from pprint import pprint
 
 class User(object):
     def __init__(self, username, password=''):
@@ -86,23 +86,6 @@ class User(object):
         return (login_success, response)
 
     @staticmethod
-    def get_username_list(username=None):
-        # Find all users in the database and return a sorted username list
-        # Optionally filter out the passed in username
-        users = mongo.db.users.find()
-
-        # Get the list of users
-        username_list = [
-            (str(user['username']), user['username'])
-            for user in users
-            if user['username'] != username
-        ]
-
-        # Now sort the values on 'username'
-        username_list = sorted(username_list, key=lambda v: v[1])
-        return username_list
-
-    @staticmethod
     def create_new_transaction(from_username, to_username, amount):
         # Retrieve Documents for the 'from_user' and 'to_user'
         from_user = mongo.db.users.find_one({'username': from_username})
@@ -144,6 +127,82 @@ class User(object):
         response = Miner.add_transaction_to_blockchain(transaction_to_miner)
 
         return response
+
+    @staticmethod
+    def get_formatted_blockchain_log():
+        # Get all the blockchain transactions from the database 'blockchain'
+        blockchain_transactions = mongo.db.blockchain.find()
+        # Parse transactions and load them into 'table_list'
+        table_list = []
+
+        for transaction in blockchain_transactions:
+            to_user_pk = transaction['to_user_pk']
+            from_user_pk = transaction['from_user_pk']
+
+            # Helper function to encode as 'UTF-8' if not:
+            if isinstance(to_user_pk, str):
+                to_user_pk = to_user_pk.encode('UTF-8')
+            if isinstance(from_user_pk, str):
+                from_user_pk = from_user_pk.encode('UTF-8')
+
+            # Cross-reference user database to get actual username
+            to_user = mongo.db.users.find_one(
+                {'public_key': to_user_pk}
+            )
+            to_user_username = to_user['username']
+
+            # If from 'miner' set from username as simply 'miner'
+            if from_user_pk == b'<miner>':
+                from_user_username = '<miner>'
+            else:
+                from_user = mongo.db.users.find_one(
+                    {'public_key': from_user_pk}
+                )
+                from_user_username = from_user['username']
+
+            if to_user is not None:
+                table_list.append({
+                    'from_user': from_user_username,
+                    'to_user': to_user_username,
+                    'amount': transaction['cc_amount'],
+                    'timestamp': transaction['timestamp'],
+                    'nonce': transaction['nonce'],
+                    'miner_verify': transaction['miner_verify']
+                })
+
+        return table_list
+
+    @staticmethod
+    def get_raw_blockchain_log():
+        blockchain_transactions = mongo.db.blockchain.find()
+
+        blockchain_list = []
+
+        for transaction in blockchain_transactions:
+            for key, val in transaction.items():
+                transaction[key] = str(val)
+            blockchain_list.append(transaction)
+
+        return blockchain_list
+
+
+    @staticmethod
+    def get_username_list(username=None):
+        # Find all users in the database and return a sorted username list
+        # Optionally filter out the passed in username
+        users = mongo.db.users.find()
+
+        # Get the list of users
+        username_list = [
+            (str(user['username']), user['username'])
+            for user in users
+            if user['username'] != username
+        ]
+
+        # Now sort the values on 'username'
+        username_list = sorted(username_list, key=lambda v: v[1])
+        return username_list
+
 
 
 class Miner(object):
