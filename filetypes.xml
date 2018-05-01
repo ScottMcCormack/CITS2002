@@ -3,6 +3,8 @@
     <extensionMap>
       <mapping pattern="requirements.txt" type="PLAIN_TEXT" />
       <mapping pattern=".nojekyll" type="PLAIN_TEXT" />
+      <mapping ext="service" type="PLAIN_TEXT" />
+      <mapping ext="conf" type="PLAIN_TEXT" />
       <mapping ext="cpickle" type="PLAIN_TEXT" />
     </extensionMap>
   </component>
